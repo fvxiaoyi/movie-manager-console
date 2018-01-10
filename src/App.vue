@@ -1,7 +1,15 @@
 <template>
   <div id="app">
     <el-container>
-      <el-header>Header</el-header>
+      <el-header>
+          <el-row type="flex" justify="space-between">
+            <el-col :span="2"><img class="logo" src="/static/logo.jpg" /></el-col>
+            <el-col :span="2">
+              登陆信息
+            </el-col>
+          </el-row>
+        </el-row>
+      </el-header>
       <el-container>
         <el-menu class="el-menu-vertical"
           default-active="1"
@@ -46,7 +54,7 @@ export default {
       this.isCollapse = !this.isCollapse
     },
     onMenuItemClick(path) {
-      this.$router.push(path)
+      this.$router.push(`/${path}`)
     }
   }
 }
@@ -70,9 +78,7 @@ export default {
       height: 30px;
       line-height: 30px;
       color: #fff;
-      &:hover {
-        background-color: #434A50;
-      }
+      background-color: #434A50;
     }
   }
   .el-menu-vertical:not(.el-menu--collapse) {
@@ -81,9 +87,12 @@ export default {
   }
   
   .el-header {
-    background-color: #B3C0D1;
-    color: #333;
-    height: 200px;
+    background-color: #545C60;
+    .logo {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
   }
   
   .el-aside {
@@ -93,4 +102,5 @@ export default {
   .el-main {
     background-color: #fff;
   }
+
 </style>

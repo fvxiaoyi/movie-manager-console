@@ -6,9 +6,13 @@ import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
 import router from './router'
 
+import BackBtn from './components/backBtn'
+
 Vue.config.productionTip = false
 
 Vue.use(ElementUI)
+
+Vue.component('back-btn',BackBtn);
 
 /* eslint-disable no-new */
 new Vue({

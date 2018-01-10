@@ -1,11 +1,11 @@
 <template>
-	<div class="movie-list-container">
+	<div class="type-list-container">
 	  <el-row class="top-bar">
 	  	<el-col :span="1">
 	  	  <back-btn></back-btn>
 	  	</el-col>
 	    <el-col :span="1" :offset="1">
-	      <el-button type="primary" size="small" plain @click="onAddClick">添加</el-button>
+	      <el-button type="primary" size="small" >添加</el-button>
 	    </el-col>
 	    <el-col :span="7" :offset="14">
 	      <el-form :inline="true" size="small">
@@ -13,7 +13,7 @@
 		      <el-input v-model="searchName" placeholder="请输入名称查询"></el-input>
 		    </el-form-item>
 		    <el-form-item>
-		      <el-button type="info" plain>查询</el-button>
+		      <el-button type="primary">查询</el-button>
 		    </el-form-item>
 		  </el-form>
 	    </el-col>
@@ -68,7 +68,7 @@
 	      label="操作"
 	      width="180">
 	      <template slot-scope="scope">
-	        <el-button size="mini" type="primary" @click="onEditClick(scope.row)">编辑</el-button>
+	        <el-button size="mini" type="primary">编辑</el-button>
 	        <el-button size="mini" type="danger">删除</el-button>
 	      </template>
 	    </el-table-column>
@@ -93,7 +93,6 @@
       	searchName : '',
       	currentPage4: 4,
         tableData3: [{
-        	id: '1',
           date: '2016-05-03',
           name: '王小虎',
           province: '上海',
@@ -101,7 +100,6 @@
           address: '上海市普陀区金沙江路 1518 弄',
           zip: 200333
         }, {
-        	id: '2',
           date: '2016-05-02',
           name: '王小虎',
           province: '上海',
@@ -117,24 +115,18 @@
       },
       handleCurrentChange(val) {
         console.log(`当前页: ${val}`);
-      },
-      onAddClick() {
-      	this.$router.push('/movie/add')
-      },
-      onEditClick(row) {
-      	this.$router.push(`/movie/edit/${row.id}`)
       }
     }
   }
 </script>
 
 <style lang="scss">
-  .movie-list-container {
+  .type-list-container {
   	$border-style: 1px solid #EBEEF5;
     .top-bar {
   	  height: 49px;
   	  border-top: $border-style;
-  	  margin: 9px 0 10px 0;
+  	  margin-bottom: 10px;
   	  padding-top: 10px;
   	}
   	.el-table {
