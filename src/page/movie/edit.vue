@@ -9,20 +9,18 @@
 	      <span v-else class="title">添加</span>
 	    </el-col>
 		</div>
-  	<el-form ref="form" :model="movie" label-width="80px">
+  	<el-form :model="movie" label-width="80px" ref="movieForm">
 		  <el-form-item label="名称">
 		    <el-input v-model="name"></el-input>
 		  </el-form-item>
 		  <el-form-item label="译名">
 		    <el-input v-model="transName"></el-input>
 		  </el-form-item>
-
 		  <el-form-item label="类别">
-			  <el-checkbox-group v-model="checkList">
-			  	<el-checkbox v-for="type in types" label="type.id">{{type.name}}</el-checkbox>
+			  <el-checkbox-group v-model="movie.types" >
+			  	<el-checkbox border v-for="t in types" :label="t.id" :key="t.id" >{{t.name}}</el-checkbox>
 			  </el-checkbox-group>
 		  </el-form-item>
-
 		  <el-form-item label="年份">
 		    <el-input v-model="movie.year"></el-input>
 		  </el-form-item>
@@ -35,12 +33,49 @@
 		  <el-form-item label="时长">
 		    <el-input v-model="movie.time"></el-input>
 		  </el-form-item>
-		  <el-form-item label="豆瓣评分">
+		  <el-form-item label="豆瓣评分" width="50%" >
 		    <el-input v-model="movie.doubanScore"></el-input>
 		  </el-form-item>
-		  <el-form-item label="IMDB评分">
+		  <el-form-item label="IMDB评分" width="50%" >
 		    <el-input v-model="movie.imdbScore"></el-input>
 		  </el-form-item>
+
+		  <div class="clear">
+		  	<div class="left" style="width:50%">
+		  		<el-form-item label="导演">
+				    <el-button icon="el-icon-plus" size="small" round @click="addMutilAttrValue('directors')" ></el-button>
+				  </el-form-item>
+				  <el-form-item
+				    v-for="(d, index) in directors"
+				    :label="'导演' + index"
+				    :key="index"
+				    :rules="{
+				      required: true, message: '导演名称不能为空', trigger: 'blur'
+				    }"
+				  >
+				    <el-input v-model="d.value" style="width:80%"></el-input>
+				    <el-button @click.prevent="removeMutilAttrValue('directors', d)">删除</el-button>
+				  </el-form-item>
+		  	</div>
+
+		  	<div class="right" style="width:50%">
+		  		<el-form-item label="演员">
+				    <el-button icon="el-icon-plus" size="small" round @click="addMutilAttrValue('actors')" ></el-button>
+				  </el-form-item>
+				  <el-form-item
+				    v-for="(a, index) in actors"
+				    :label="'演员' + index"
+				    :key="index"
+				    :rules="{
+				      required: true, message: '演员名称不能为空', trigger: 'blur'
+				    }"
+				  >
+				    <el-input v-model="a.value" style="width:80%"></el-input>
+				    <el-button @click.prevent="removeMutilAttrValue('actors', a)">删除</el-button>
+				  </el-form-item>
+		  	</div>
+		  </div>
+
 		  <el-form-item label="简介">
 		  	<el-input
 				  type="textarea"
@@ -48,6 +83,22 @@
 				  placeholder="请输入内容"
 				  v-model="movie.profile">
 				</el-input>
+		  </el-form-item>
+
+		  <el-form-item label="下载地址">
+		    <el-button icon="el-icon-plus" size="small" round @click="addMutilAttrValue('hrefs')"></el-button>
+		  </el-form-item>
+		  <el-form-item
+		    v-for="(h, index) in hrefs"
+		    :label="'下载地址' + index"
+		    :rules="{
+		      required: true, message: '下载地址不能为空', trigger: 'blur'
+		    }"
+		    :key="index"
+		    label-width="100"
+		  >
+		    <el-input v-model="h.value" style="width:80%"></el-input>
+		    <el-button @click.prevent="removeMutilAttrValue('hrefs', h)">删除</el-button>
 		  </el-form-item>
 
 		  <el-form-item>
@@ -62,23 +113,36 @@
   export default {
     data() {
       return {
-        movie: {
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
-        },
-        checkList: ['选中且禁用','复选框 A'],
+        movie: {},
         types: []
       }
     },
     methods: {
       onSubmit() {
-        console.log('submit!');
+      	this.movie.actors = this.actors.filter(m => m.value).map(m => m.value)
+       	this.movie.directors = this.directors.filter(m => m.value).map(m => m.value)
+       	console.log(this.movie)
+      },
+      removeMutilAttrValue(attr, value) {
+      	if(this[attr] instanceof Array) {
+      		let index = this.movie[attr].indexOf(value.value)
+      		console.log(index)
+      		if (index !== -1) {
+      			console.log(index)
+	        	this.movie[attr].splice(index, 1)
+	        } else {
+	        	index = this[attr].map(m => m.value).indexOf(value.value)
+	        	this.movie[attr].splice(index, 1)
+	        }
+      	}
+      },
+      addMutilAttrValue(attr) {
+      	if(this[attr] instanceof Array) {
+      		if(this[attr].filter(f => f.value === '').length > 0) {
+      			return
+      		}
+      		this.movie[attr].push('')
+      	}
       },
       loadData() {
       	let id = this.$route.params.id,
@@ -146,13 +210,31 @@
     			}
     		}
     	},
-    	type: {
+    	actors: {
     		get() {
-    			return this.movie.types && this.movie.types.length > 0 ? this.movie.types.map(_m => _m._id) : []
-    		},
-    		set(v) {
-    			console.log(v)
-    			this.movie.types = v
+    			let result = []
+    			if( this.movie.actors && this.movie.actors.length > 0) {
+    				this.movie.actors.forEach(a => result.push({ value : a}))
+    			}
+    			return result
+    		}
+    	},
+    	directors: {
+    		get() {
+    			let result = []
+    			if( this.movie.directors && this.movie.directors.length > 0) {
+    				this.movie.directors.forEach(a => result.push({ value : a}))
+    			}
+    			return result
+    		}
+    	},
+    	hrefs: {
+    		get() {
+    			let result = []
+    			if( this.movie.hrefs && this.movie.hrefs.length > 0) {
+    				this.movie.hrefs.forEach(a => result.push({ value : a}))
+    			}
+    			return result
     		}
     	}
     },
@@ -163,6 +245,7 @@
 </script>
 
 <style lang="scss">
+	@import '../../style/common';
 	.movie-edit-wrap {
 		$border-style: 1px solid #EBEEF5;
 		.top-bar {
