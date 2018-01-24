@@ -18,6 +18,10 @@ Vue.component('back-btn',BackBtn);
 /* eslint-disable no-new */
 
 Vue.prototype.$http = axios
+Vue.prototype.$loading = ElementUI.Loading
+
+// loadingInstance =this.$loading.service({ fullscreen: true })
+// loadingInstance.close()
 
 new Vue({
   el: '#app',

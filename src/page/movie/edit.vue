@@ -10,6 +10,22 @@
 	    </el-col>
 		</div>
   	<el-form :model="movie" label-width="80px" ref="movieForm">
+      <el-form-item label="图片">
+
+        <el-upload
+          action="http://127.0.0.1:7001/store/upload"
+          list-type="picture-card"
+          :on-preview="handlePictureCardPreview"
+          :on-remove="handleRemove"
+          :file-list="displayImgs"
+          :on-success="handleUploadSuccess" >
+          <i class="el-icon-plus"></i>
+        </el-upload>
+        <el-dialog :visible.sync="dialogVisible" size="tiny">
+          <img width="100%" :src="dialogImageUrl" alt="">
+        </el-dialog>
+
+      </el-form-item>
 		  <el-form-item label="名称">
 		    <el-input v-model="name"></el-input>
 		  </el-form-item>
@@ -103,7 +119,7 @@
 
 		  <el-form-item>
 		    <el-button type="primary" @click="onSubmit">保存</el-button>
-		    <el-button>取消</el-button>
+		    <el-button @click="cancel">取消</el-button>
 		  </el-form-item>
 		</el-form>
   </div>
@@ -114,14 +130,57 @@
     data() {
       return {
         movie: {},
-        types: []
+        types: [],
+        dialogImageUrl: '',
+        dialogVisible: false
+
       }
     },
     methods: {
+      handleRemove(file, fileList) {
+        if(this.movie.displayImg) {
+          let index = this.movie.displayImg.indexOf(file.url.substring(file.url.lastIndexOf("/") + 1))
+          if(index !== -1){
+            this.movie.displayImg.splice(index, 1)
+          }
+        }
+      },
+      handleUploadSuccess(response, file, fileList) {
+        if(!this.movie.displayImg) {
+          this.movie.displayImg = []
+        }
+        this.movie.displayImg.push(response.data.id)
+      },
+      handlePictureCardPreview(file) {
+        this.dialogImageUrl = file.url;
+        this.dialogVisible = true;
+      },
       onSubmit() {
+      	let me = this
       	this.movie.actors = this.actors.filter(m => m.value).map(m => m.value)
        	this.movie.directors = this.directors.filter(m => m.value).map(m => m.value)
-       	console.log(this.movie)
+       	this.movie.hrefs = this.hrefs.filter(m => m.value).map(m => m.value)
+       	let url = this.movie.id ? 'http://127.0.0.1:7001/movie/update' : 'http://127.0.0.1:7001/movie/create'
+       	console.log(url)
+       	this.$http.post(url, this.movie)
+    		.then((response) => {
+    			if(response.data.success) {
+    				me.$notify({
+		          title: '成功',
+		          message: '保存成功',
+		          type: 'success'
+		        });
+    				me.loadData()
+    			} else {
+    				this.$notify.error({
+		          title: '错误',
+		          message: response.data.msg
+		        });
+    			}
+    		})
+      },
+      cancel() {
+      	this.$router.go(-1)
       },
       removeMutilAttrValue(attr, value) {
       	if(this[attr] instanceof Array) {
@@ -154,10 +213,15 @@
       	if(id) {
       		this.$http.post('http://127.0.0.1:7001/movie/get', { id })
       		.then(function (response) {
-      			me.movie = response.data.data
+      			if(response.data.success) {
+      				me.movie = response.data.data
+      			} else {
+      				this.$notify.error({
+			          title: '错误',
+			          message: response.data.msg
+			        });
+      			}
       		})
-      	} else {
-
       	}
       }
     },
@@ -236,7 +300,16 @@
     			}
     			return result
     		}
-    	}
+    	},
+      displayImgs: {
+        get() {
+          let result = []
+          if( this.movie.displayImg && this.movie.displayImg.length > 0) {
+           result = this.movie.displayImg.map(m => {return { name: 'img.jpg', url: `http://127.0.0.1:7001/store/gain/${m}` }})
+          }
+          return result
+        }
+      }
     },
     created() {
     	this.loadData()

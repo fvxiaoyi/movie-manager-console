@@ -56,7 +56,7 @@
 	      width="180">
 	      <template slot-scope="scope">
 	        <el-button size="mini" type="primary" @click="onEditClick(scope.row)">编辑</el-button>
-	        <el-button size="mini" type="danger">删除</el-button>
+	        <el-button size="mini" type="danger" @click="onRemoveClick(scope.row)">删除</el-button>
 	      </template>
 	    </el-table-column>
 	  </el-table>
@@ -93,6 +93,24 @@
       },
       onEditClick(row) {
       	this.$router.push(`/movie/edit/${row.id}`)
+      },
+      onRemoveClick(row) {
+      	let me = this
+      	this.$http.post('http://127.0.0.1:7001/movie/remove', { id : row.id}).then((response) => {
+      		if(response.data.success) {
+    				me.$notify({
+		          title: '成功',
+		          message: '删除成功',
+		          type: 'success'
+		        });
+    				me.loadData()
+    			} else {
+    				this.$notify.error({
+		          title: '错误',
+		          message: '系统有BUG'
+		        });
+    			}
+      	})
       },
       onSortChange(sort) {
       	if(sort.prop) {
